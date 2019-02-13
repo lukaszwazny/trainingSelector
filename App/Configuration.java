@@ -15,7 +15,8 @@ public class Configuration {
 				"BJJ pocz.",
 				"BJJ 8-12",
 				"BJJ 4-7",
-				"MDS"
+				"MDS",
+				"Krav Maga"
 		};
 	}
 	
