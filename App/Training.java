@@ -3,6 +3,9 @@ package trainingSelector;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Training {
 	
 	String name;
@@ -15,6 +18,14 @@ public class Training {
 		this.entrances = 0;
 	}
 	
+	@JsonCreator
+	public Training(@JsonProperty("name") String name, 
+			@JsonProperty("date") Date date, @JsonProperty("entrances") int entrances) {
+		this.name = name;
+		this.date = date;
+		this.entrances = entrances;
+	}
+	
 	public String getName() {
 		return this.name;
 	}
@@ -23,7 +34,7 @@ public class Training {
 		return this.date;
 	}
 	
-	public String getDateString() {
+	public String dateToDisplay() {
 		SimpleDateFormat ft = 
 			      new SimpleDateFormat("E, d.M.y");
 		return ft.format(this.date);

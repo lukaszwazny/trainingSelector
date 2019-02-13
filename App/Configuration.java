@@ -1,5 +1,8 @@
 package trainingSelector;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Configuration {
 	String[] names;	//array containing names of trainings
 	
@@ -21,7 +24,8 @@ public class Configuration {
 	}
 	
 	//not default
-	public Configuration(String[] names) {
+	@JsonCreator
+	public Configuration(@JsonProperty("names") String[] names) {
 		this.names = names;
 	}
 	
@@ -29,7 +33,7 @@ public class Configuration {
 		return this.names[i];
 	}
 	
-	public int getLength() {
+	public int length() {
 		return this.names.length;
 	}
 	

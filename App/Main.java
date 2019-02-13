@@ -2,26 +2,32 @@ package trainingSelector;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Scanner;
+import java.util.List;
+
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 public class Main extends Application {
 	
 	static Configuration conf;
 	
-	private static ObservableList<Training> trainings = FXCollections.observableArrayList();
+	protected static ObservableList<Training> trainings = FXCollections.observableArrayList();
+	
+	public static boolean listen;
 	
 	public static void main(String[] args) {
 		
@@ -34,27 +40,35 @@ public class Main extends Application {
 			changedConf = true;
 		}
 		
-		for(int i = 0; i < conf.getLength(); i++) {
+		for(int i = 0; i < conf.length(); i++) {
 			trainings.add(new Training(conf.getName(i)));
 		}
 		
-		Application.launch(args);
+		listen = true;
+		Thread listener = new Thread(new Listener());
+		listener.start();
 		
-		Scanner in = new Scanner(System.in);
-		int i;
-		while(true) {
-			if(in.hasNext()) {
-				i = in.nextInt();
-				trainings.get(i).addEntrance();
-				System.out.println(trainings.get(i).getName() + ": " + trainings.get(i).getEntrances());
-	        }
+		Application.launch(args);
+		listen = false;
+		
+		if(changedConf) {
+			Parser.saveConfiguration(conf);
+		}
+		
+		List<Training> trainings_ = Parser.readTrainings();
+		if(trainings_ != null) {
+			trainings_.addAll(trainings);
+			Parser.saveTrainings(trainings_);
+		} else {
+			Parser.saveTrainings(trainings);
 		}
 		
 	}
 	
 	//GUI
-	private TableView<Training> table = new TableView<Training>();
+	public static TableView<Training> table = new TableView<Training>();
 	
+	@SuppressWarnings("unchecked")
 	public void start(Stage stage) {
         Scene scene = new Scene(new Group());
         stage.setTitle("Training Counter");
@@ -65,6 +79,8 @@ public class Main extends Application {
 			      new SimpleDateFormat("E, d.M.y");
         final Label label = new Label(ft.format(new Date()));
         label.setFont(new Font("Arial", 20));
+        
+        table.setEditable(true);
  
         TableColumn<Training, String> trainingNameCol = new TableColumn<Training, String>("Trening");
         trainingNameCol.setCellValueFactory(
@@ -74,7 +90,34 @@ public class Main extends Application {
         entrancesAmountCol.setCellValueFactory(
                 new PropertyValueFactory<Training, Integer>("entrances"));
         
-        TableColumn deleteEntranceCol = new TableColumn("");
+        TableColumn<Training, Button> deleteEntranceCol = new TableColumn<Training, Button>("");
+        deleteEntranceCol.setCellValueFactory(
+        		new PropertyValueFactory<>("DUMMY"));
+        
+        Callback<TableColumn<Training, Button>, TableCell<Training, Button>> cellFactory = //
+        		new Callback<TableColumn<Training, Button>, TableCell<Training, Button>>() {
+        			@Override
+        			public TableCell<Training, Button> call(final TableColumn<Training, Button> param) {
+        				final TableCell<Training, Button> cell = new TableCell<Training, Button>() {
+
+        					final Button btn = new Button("Usuñ");
+
+        					@Override
+        					public void updateItem(Button item, boolean empty) {
+        						super.updateItem(item, empty);
+        							btn.setOnAction(event -> {
+        								Training training = getTableView().getItems().get(getIndex());
+        								training.deleteEntrance();
+        								table.refresh();
+        							});
+        							setGraphic(btn);
+        					}
+        				};
+        				return cell;
+        			}
+        };
+
+        deleteEntranceCol.setCellFactory(cellFactory);
         
         table.setItems(trainings);
         table.getColumns().addAll(trainingNameCol, entrancesAmountCol, deleteEntranceCol);
