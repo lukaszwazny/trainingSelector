@@ -22,6 +22,7 @@ import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -190,5 +191,46 @@ public class GUI extends Main {
         //add scene to stage and show
         report.setScene(reportScene);
         report.show();
+	}
+	
+	//window showing when saved trainings
+	public static void saved() {
+		
+		//create new window
+		Stage savedStage = new Stage();
+		savedStage.initModality(Modality.APPLICATION_MODAL);
+		savedStage.setTitle("Zapisano!");
+		savedStage.setWidth(150);
+		savedStage.setHeight(150);
+		       
+		//grid containing all elements
+		GridPane savedGrid = new GridPane();
+		savedGrid.setAlignment(Pos.CENTER);
+		savedGrid.setHgap(10);
+		savedGrid.setVgap(10);
+		savedGrid.setPadding(new Insets(20, 20, 20, 20));
+		
+		Scene savedScene = new Scene(savedGrid); 
+		
+		//label saying that trainings where saved
+        Label saved = new Label("Zapisano!");
+        saved.setFont(new Font("Arial", 18));
+        savedGrid.add(saved, 0, 0);
+        
+        //button closing window
+        Button close = new Button("Ok!");
+        close.setOnAction(e -> {
+        	savedStage.close();
+        });
+        
+        //just for centering button
+        HBox hb = new HBox(10);
+        hb.setAlignment(Pos.CENTER);
+        hb.getChildren().add(close);
+        savedGrid.add(hb, 0, 1);
+        
+        //add scene to stage and show
+        savedStage.setScene(savedScene);
+        savedStage.show();
 	}
 }

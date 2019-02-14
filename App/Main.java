@@ -174,6 +174,7 @@ public class Main extends Application {
         		} else {
         			Parser.saveTrainings(trainings);
         		}
+        		GUI.saved();
             }
         });
         menuSave.setGraphic(saveLabel);

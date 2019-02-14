@@ -112,7 +112,8 @@ public class PDF {
 		document.close();
 		
 	}
-
+	
+	static int allEntrances = 0;
 	private static void addRows(PdfPTable table, String trainingName, Date from, Date to) {
 		
 		//reading list of trainings
@@ -152,7 +153,19 @@ public class PDF {
 			secondCol.setHorizontalAlignment(Element.ALIGN_CENTER);
 			table.addCell(secondCol);
 			
+			//calculating sum of entrances
+			allEntrances += training.getEntrances();
 		});
+		
+		//add cells with sum of entrances
+		Paragraph all = new Paragraph("£¹cznie", new Font(helveticaBold, 14));
+		PdfPCell allLabel = new PdfPCell(all);
+		allLabel.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(allLabel);
+		Paragraph sumEntrances = new Paragraph(Integer.toString(allEntrances), new Font(helveticaBold, 14));
+		PdfPCell allEntrancesLabel = new PdfPCell(sumEntrances);
+		allEntrancesLabel.setHorizontalAlignment(Element.ALIGN_CENTER);
+		table.addCell(allEntrancesLabel);
 	}
 
 	private static void addTableHeader(PdfPTable table) {
