@@ -14,6 +14,7 @@ import java.util.List;
 
 public class Parser {
 	
+	//reading configuration names list from json, returns configuration object
 	public static Configuration readConfiguration() {
 		Configuration conf = null;
 		ObjectMapper mapper = new ObjectMapper();
@@ -30,6 +31,7 @@ public class Parser {
 		return conf;
 	}
 	
+	//saving conf object to json
 	public static void saveConfiguration(Configuration conf) {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
@@ -44,6 +46,7 @@ public class Parser {
 		}
 	}
 	
+	//reading training list from json, returns list with trainings
 	public static List<Training> readTrainings() {
 		List<Training> trainings = null;
 		ObjectMapper mapper = new ObjectMapper();
@@ -61,6 +64,7 @@ public class Parser {
 		return trainings;
 	}
 	
+	//save trainings list to json
 	public static void saveTrainings(List<Training> trainings) {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);

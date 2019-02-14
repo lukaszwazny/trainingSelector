@@ -25,30 +25,35 @@ public class Configuration {
 				"Krav Maga");
 	}
 	
-	//not default
+	//for reading from json
 	@JsonCreator
 	public Configuration(@JsonProperty("names") List<String> names) {
 		this.names = names;
 	}
 	
+	//get name specified by i
 	public String getName(int i) {
 		return this.names.get(i);
 	}
 	
+	//get names list in form of array
 	public String[] namesArray() {
 		String[] temp = new String[names.size()];
 		temp = names.toArray(temp);
 		return temp;
 	}
 	
+	//length of names list
 	public int length() {
 		return this.names.size();
 	}
 	
+	//add name to list
 	public void addName(String name) {
 		this.names.add(name);
 	}
 	
+	//delete all names from list
 	public void clear() {
 		this.names.clear();
 	}

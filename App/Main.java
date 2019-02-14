@@ -5,48 +5,44 @@ import java.util.Date;
 import java.util.List;
 
 import javafx.application.Application;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 
 public class Main extends Application {
 	
+	//configuration object
 	static Configuration conf;
 	
+	//list of trainings
 	protected static ObservableList<Training> trainings = FXCollections.observableArrayList();
 	
+	//for controlling listening to input stream
 	public static boolean listen;
 	
+	//for saving information about fact if configuration was changed
 	static boolean changedConf;
 	
 	public static void main(String[] args) {
 		
 		//read configuration
 		conf = Parser.readConfiguration();
+		
 		//if configuration doesn't exist - make it default
 		changedConf = false;
 		if(conf == null) {
@@ -54,188 +50,159 @@ public class Main extends Application {
 			changedConf = true;
 		}
 		
+		//fill trainings list with trainings which names are in configuration file
 		for(int i = 0; i < conf.length(); i++) {
 			trainings.add(new Training(conf.getName(i)));
-			System.out.println(trainings.get(i).getName());
 		}
 		
+		//start listening to input stream
 		listen = true;
 		Thread listener = new Thread(new Listener());
 		listener.start();
 		
+		//launch GUI
 		Application.launch(args);
+		
+		//end listening to input stream
 		listen = false;
 		
+		//if changed configuration - save it
 		if(changedConf) {
 			Parser.saveConfiguration(conf);
-		}
-		
-		List<Training> trainings_ = Parser.readTrainings();
-		if(trainings_ != null) {
-			trainings_.addAll(trainings);
-			Parser.saveTrainings(trainings_);
-		} else {
-			Parser.saveTrainings(trainings);
 		}
 		
 	}
 	
 	//GUI
+	
+	//create table which will be filled with trainings data
 	public static TableView<Training> table = new TableView<Training>();
 	
+	//main stage of application
 	@SuppressWarnings("unchecked")
 	public void start(Stage stage) {
-        Scene scene = new Scene(new Group());
         stage.setTitle("Training Counter");
-        stage.setWidth(300);
+        stage.setWidth(400);
         stage.setHeight(550);
- 
+        
+        //main grid with all elements
+        GridPane mainGrid = new GridPane();
+        mainGrid.setAlignment(Pos.TOP_CENTER);
+        mainGrid.setHgap(10);
+        mainGrid.setVgap(10);
+        mainGrid.setPadding(new Insets(0, 20, 20, 20));
+        
+        Scene scene = new Scene(mainGrid);
+        
+        //label showing current date
         SimpleDateFormat ft = 
 			      new SimpleDateFormat("E, d.M.y");
         final Label label = new Label(ft.format(new Date()));
         label.setFont(new Font("Arial", 20));
+        HBox hbLabel = new HBox(10);
+        hbLabel.setAlignment(Pos.CENTER);
+        hbLabel.getChildren().add(label);
+        mainGrid.add(hbLabel, 0, 1);
         
+        //make table editable
         table.setEditable(true);
- 
+        
+        //create first column and fill with training names
         TableColumn<Training, String> trainingNameCol = new TableColumn<Training, String>("Trening");
         trainingNameCol.setCellValueFactory(
                 new PropertyValueFactory<Training, String>("name"));
         
+        //create second column and fill with number of entrances of each training
         TableColumn<Training, Integer> entrancesAmountCol = new TableColumn<Training, Integer>("Iloœæ wejœæ");
         entrancesAmountCol.setCellValueFactory(
                 new PropertyValueFactory<Training, Integer>("entrances"));
         
+        //create third column and fill with buttons capable of deleting 
+        //one entrance of appropriate training
         TableColumn<Training, Button> deleteEntranceCol = new TableColumn<Training, Button>("");
-        deleteEntranceCol.setCellFactory(ActionButtonTableCell.<Training>forTableColumn("Usuñ", (Training p) -> {
-            p.deleteEntrance();
-            table.refresh();
-            return p;
+        deleteEntranceCol.setCellFactory(ActionButtonTableCell.<Training>forTableColumn("Usuñ", 
+        		(Training p) -> {
+        			p.deleteEntrance();
+        			table.refresh();
+        			return p;
         }));
         
+        //set list from which comes all data to fill in table
         table.setItems(trainings);
-        table.getColumns().addAll(trainingNameCol, entrancesAmountCol, deleteEntranceCol);
-
-        final VBox vbox = new VBox();
-        vbox.setSpacing(5);
-        vbox.setPadding(new Insets(40, 0, 0, 10));
-        vbox.getChildren().addAll(label, table);
- 
-        ((Group) scene.getRoot()).getChildren().addAll(vbox);
         
-        //menu
+        //add columns to table
+        table.getColumns().addAll(trainingNameCol, entrancesAmountCol, deleteEntranceCol);
+        
+        //add table to main grid
+        mainGrid.add(table, 0, 2);
+        
+        //create menu
         MenuBar menuBar = new MenuBar();
         
+        //first menu button - for configuration
         Menu menuConf = new Menu();
         Label confLabel = new Label("Konfiguracja");
         confLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                Stage configure = new Stage();
-                configure.initModality(Modality.APPLICATION_MODAL);
-                configure.setTitle("Konfiguracja");
-                configure.setWidth(300);
-                configure.setHeight(550);
-                
-                GridPane grid = new GridPane();
-                grid.setAlignment(Pos.CENTER);
-                grid.setHgap(10);
-                grid.setVgap(10);
-                grid.setPadding(new Insets(20, 20, 20, 20));
-
-                Scene configureScene = new Scene(grid); 
-                
-                ObservableList<String> trainingNames = FXCollections.observableArrayList();
-                trainingNames.addAll(conf.namesArray());
-                if(trainingNames.size() < 20) {
-                	for(int i = trainingNames.size(); i < 20; i++) {
-                		trainingNames.add("");
-                	}
-                }
-                
-                TableView<String> trainingNamesTable = new TableView<String>();
-                trainingNamesTable.setEditable(true);
-                
-                TableColumn<String, Integer> buttonNrCol = 
-                		new TableColumn<String, Integer>("Numer przycisku");
-                buttonNrCol.setCellFactory(col -> {
-                return new TableCell<String, Integer>() {
-                    @Override
-                    protected void updateItem(Integer item, boolean empty) {
-                        super.updateItem(item, empty);            
-                        setText(this.getTableRow().getIndex() + "");
-                    }
-                };
-                });
-                
-                TableColumn<String, String> nameCol = 
-                		new TableColumn<String, String>("Nazwa treningu");
-                nameCol.setCellValueFactory(
-                		new Callback<CellDataFeatures<String, String>, ObservableValue<String>>() {
-                    public ObservableValue<String> call(CellDataFeatures<String, String> p) {
-                        return new SimpleStringProperty(p.getValue());
-                    }
-                 });
-                nameCol.setCellFactory(TextFieldTableCell.<String>forTableColumn());
-                nameCol.setOnEditCommit(
-                        (CellEditEvent<String, String> t) -> {
-                            trainingNames.set(t.getTablePosition().getRow(), t.getNewValue());
-                            changedConf = true;
-                        }
-                );
-                
-                trainingNamesTable.setItems(trainingNames);
-                trainingNamesTable.getColumns().addAll(buttonNrCol, nameCol);
-                
-                final Button applyButton = new Button("Zapisz i wyjdŸ");
-                applyButton.setOnAction(e -> {
-                	if(changedConf) {
-                		conf.clear();
-                		for(int i = 0; i < 20; i++) {
-                    		if(!nameCol.getCellData(i).isEmpty()) {
-                    			conf.addName(nameCol.getCellData(i));
-                    		}
-                    	}
-                	}
-                	configure.close();
-                	stage.close();
-                });
-                
-                final Button cancelButton = new Button("Anuluj");
-                cancelButton.setOnAction(e -> {
-                	configure.close();
-                });
-                
-                grid.add(applyButton, 0, 0);
-                grid.add(cancelButton, 1, 0);
-                grid.add(trainingNamesTable, 0, 1, 2, 1);
-                
-                configure.setScene(configureScene);
-                configure.show();
+                GUI.configurationStage(stage);
             }
         });
-        confLabel.setStyle("-fx-padding: -7");
         menuConf.setGraphic(confLabel);
  
-        // --- Menu Edit
-        Menu menuReport = new Menu("Raport");
- 
-        // --- Menu View
+        // second menu button - for generating reports
+        Menu menuReport = new Menu();
+        Label reportLabel = new Label("Raport");
+        reportLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+            	GUI.reportStage();
+            }
+        });
+        menuReport.setGraphic(reportLabel);
+        
+        //third menu button for saving trainings list to json
+        Menu menuSave = new Menu();
+        Label saveLabel = new Label("Zapisz");
+        saveLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+            	List<Training> trainings_ = Parser.readTrainings();
+        		if(trainings_ != null) {
+        			trainings_.addAll(trainings);
+        			Parser.saveTrainings(trainings_);
+        		} else {
+        			Parser.saveTrainings(trainings);
+        		}
+            }
+        });
+        menuSave.setGraphic(saveLabel);
+        
+        //fourth menu button for saving trainings list to json and closing application
         Menu menuClose = new Menu();
         Label closeLabel = new Label("Zapisz i wyjdŸ");
         closeLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+            	List<Training> trainings_ = Parser.readTrainings();
+        		if(trainings_ != null) {
+        			trainings_.addAll(trainings);
+        			Parser.saveTrainings(trainings_);
+        		} else {
+        			Parser.saveTrainings(trainings);
+        		}
                 stage.close();
             }
         });
-        closeLabel.setStyle("-fx-padding: -7");
         menuClose.setGraphic(closeLabel);
+        
+        //add all menu buttons to menu
+        menuBar.getMenus().addAll(menuConf, menuReport, menuSave, menuClose);
  
-        menuBar.getMenus().addAll(menuConf, menuReport, menuClose);
+        //add menu to grid
+        mainGrid.add(menuBar, 0, 0);
  
- 
-        ((Group) scene.getRoot()).getChildren().addAll(menuBar);
- 
+        //add scene to stage and show
         stage.setScene(scene);
         stage.show();
     }

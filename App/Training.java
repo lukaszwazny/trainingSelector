@@ -8,16 +8,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Training {
 	
-	String name;
-	Date date;
-	int entrances;
+	String name;		//name of training
+	Date date;			//date of training
+	int entrances;		//number of entrances
 
+	//creating training with given name, default date and 0 entrances
 	public Training(String name) {
 		this.name = name;
 		this.date = new Date();
 		this.entrances = 0;
 	}
 	
+	//creator for reading from json
 	@JsonCreator
 	public Training(@JsonProperty("name") String name, 
 			@JsonProperty("date") Date date, @JsonProperty("entrances") int entrances) {
@@ -34,6 +36,7 @@ public class Training {
 		return this.date;
 	}
 	
+	//for displaying date in nice string
 	public String dateToDisplay() {
 		SimpleDateFormat ft = 
 			      new SimpleDateFormat("E, d.M.y");
