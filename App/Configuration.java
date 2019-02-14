@@ -1,14 +1,17 @@
 package trainingSelector;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Configuration {
-	String[] names;	//array containing names of trainings
+	List<String> names;	//list containing names of trainings
 	
 	//default
 	public Configuration() {
-		this.names = new String[]{
+		this.names = Arrays.asList(
 				"Boks",
 				"Muay Thai",
 				"MMA pocz.",
@@ -19,22 +22,35 @@ public class Configuration {
 				"BJJ 8-12",
 				"BJJ 4-7",
 				"MDS",
-				"Krav Maga"
-		};
+				"Krav Maga");
 	}
 	
 	//not default
 	@JsonCreator
-	public Configuration(@JsonProperty("names") String[] names) {
+	public Configuration(@JsonProperty("names") List<String> names) {
 		this.names = names;
 	}
 	
 	public String getName(int i) {
-		return this.names[i];
+		return this.names.get(i);
+	}
+	
+	public String[] namesArray() {
+		String[] temp = new String[names.size()];
+		temp = names.toArray(temp);
+		return temp;
 	}
 	
 	public int length() {
-		return this.names.length;
+		return this.names.size();
+	}
+	
+	public void addName(String name) {
+		this.names.add(name);
+	}
+	
+	public void clear() {
+		this.names.clear();
 	}
 	
 }

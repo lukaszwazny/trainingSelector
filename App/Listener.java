@@ -9,8 +9,10 @@ public class Listener extends Main implements Runnable {
 		while(listen) {
 			if(in.hasNextInt()) {
 				i = in.nextInt();
-				trainings.get(i).addEntrance();
-				table.refresh();
+				if(i < trainings.size()) {
+					trainings.get(i).addEntrance();
+					table.refresh();
+				}
 				//System.out.println(trainings.get(i).getName() + ": " + trainings.get(i).getEntrances());
 	        }
 		}
