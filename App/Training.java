@@ -1,4 +1,4 @@
-package trainingSelector;
+package app;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -39,7 +39,7 @@ public class Training {
 	//for displaying date in nice string
 	public String dateToDisplay() {
 		SimpleDateFormat ft = 
-			      new SimpleDateFormat("E, d.M.y");
+			      new SimpleDateFormat("E, d.MM.y");
 		return ft.format(this.date);
 	}
 	

@@ -1,4 +1,4 @@
-package trainingSelector;
+package app;
 import com.fazecast.jSerialComm.*;
 
 import java.io.PrintWriter;
@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class ArduinoCommunicator {
 
     private static final short baudRate = 9600;
-    private SerialPort port;
+    protected SerialPort port;
     private boolean portFound;
 
 
@@ -60,7 +60,7 @@ public class ArduinoCommunicator {
                 //again, time for uC to initialize
                 try {
                     Thread.sleep(timeToSetUpArduino);
-                }catch (java.lang.InterruptedException e){
+                }catch (InterruptedException e){
                     e.printStackTrace();
                 }
 
@@ -102,6 +102,42 @@ public class ArduinoCommunicator {
         }
 
    }
+
+    public void launchArduinoListener(){
+        SerialPort tmpPort = this.port;
+        tmpPort.addDataListener(new SerialPortDataListener(){
+            @Override
+            public int getListeningEvents(){
+                return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
+            }
+
+            @Override
+            public void serialEvent(SerialPortEvent event) {
+                if (event.getEventType() != SerialPort.LISTENING_EVENT_DATA_AVAILABLE)
+                    return;
+
+                //read data from port
+                byte[] newData = new byte[tmpPort.bytesAvailable()];
+                int numRead = (tmpPort).readBytes(newData, newData.length);
+
+                if(numRead > 0) {
+
+                    //parse the read data to int
+                    String buff = new String(newData);
+                    buff = buff.trim();//optional (buff may contain white spaces)
+                    int number = Integer.parseInt(buff);
+
+                    /*if(number < trainings.size()) {
+                        //adding entrance to training specified by index from input stream
+                        trainings.get(number).addEntrance();
+                        table.refresh();
+                    }*/
+                    System.out.println(number);
+                }
+            }
+
+        });
+    }
 
     public boolean isArduinoInitialized(){
 

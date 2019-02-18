@@ -1,4 +1,4 @@
-package trainingSelector;
+package app;
 
 import java.time.ZoneId;
 import java.util.Date;
@@ -101,7 +101,7 @@ public class GUI extends Main {
         trainingNamesTable.getColumns().addAll(buttonNrCol, nameCol);
         
         //create button to save changes
-        final Button applyButton = new Button("Zapisz i wyjdŸ");
+        final Button applyButton = new Button("Zapisz i wyjdÅº");
         applyButton.setOnAction(e -> {
         	if(changedConf) {
         		conf.clear();

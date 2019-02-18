@@ -1,9 +1,12 @@
-package trainingSelector;
+package app;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import com.fazecast.jSerialComm.SerialPort;
+import com.fazecast.jSerialComm.SerialPortDataListener;
+import com.fazecast.jSerialComm.SerialPortEvent;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -54,17 +57,26 @@ public class Main extends Application {
 		for(int i = 0; i < conf.length(); i++) {
 			trainings.add(new Training(conf.getName(i)));
 		}
-		
-		//start listening to input stream
-		listen = true;
-		Thread listener = new Thread(new Listener());
-		listener.start();
-		
+
+        //creates an objcet representing the PC <-> Arduino communication interface
+        ArduinoCommunicator comm = new ArduinoCommunicator();
+
+        //find the arduino-port and open it
+        comm.initializeArduino();
+
+        //check if the arduino board has been initialized succesfully
+        if(comm.isArduinoInitialized())
+            System.out.println("The Arduino board has been initialized and waits for commands.");
+        else {
+            System.out.println("ERROR. No Arduino board has been initialized.");
+            return;
+        }
+
+        //listen to arduino
+        comm.launchArduinoListener();
+
 		//launch GUI
 		Application.launch(args);
-		
-		//end listening to input stream
-		listen = false;
 		
 		//if changed configuration - save it
 		if(changedConf) {
@@ -113,14 +125,14 @@ public class Main extends Application {
                 new PropertyValueFactory<Training, String>("name"));
         
         //create second column and fill with number of entrances of each training
-        TableColumn<Training, Integer> entrancesAmountCol = new TableColumn<Training, Integer>("Iloœæ wejœæ");
+        TableColumn<Training, Integer> entrancesAmountCol = new TableColumn<Training, Integer>("IloÅ›Ä‡ wejÅ›Ä‡");
         entrancesAmountCol.setCellValueFactory(
                 new PropertyValueFactory<Training, Integer>("entrances"));
         
         //create third column and fill with buttons capable of deleting 
         //one entrance of appropriate training
         TableColumn<Training, Button> deleteEntranceCol = new TableColumn<Training, Button>("");
-        deleteEntranceCol.setCellFactory(ActionButtonTableCell.<Training>forTableColumn("Usuñ", 
+        deleteEntranceCol.setCellFactory(ActionButtonTableCell.<Training>forTableColumn("UsuÅ„",
         		(Training p) -> {
         			p.deleteEntrance();
         			table.refresh();
@@ -181,7 +193,7 @@ public class Main extends Application {
         
         //fourth menu button for saving trainings list to json and closing application
         Menu menuClose = new Menu();
-        Label closeLabel = new Label("Zapisz i wyjdŸ");
+        Label closeLabel = new Label("Zapisz i wyjdÅº");
         closeLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -206,6 +218,7 @@ public class Main extends Application {
         //add scene to stage and show
         stage.setScene(scene);
         stage.show();
+
     }
 
 }
