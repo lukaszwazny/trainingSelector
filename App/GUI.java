@@ -1,4 +1,4 @@
-package app;
+package trainingSelector;
 
 import java.time.ZoneId;
 import java.util.Date;
@@ -11,27 +11,29 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
-public class GUI extends Main {
+public class GUI {
 	
 	//configuration UI
 	@SuppressWarnings("unchecked")
-	public static void configurationStage(Stage stage) {
+	public static void configurationStage(Stage stage, Configuration conf) {
 		
 		//create new window
 		Stage configure = new Stage();
@@ -69,8 +71,10 @@ public class GUI extends Main {
         return new TableCell<String, Integer>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {
-                super.updateItem(item, empty);            
-                setText(this.getTableRow().getIndex() + "");
+                super.updateItem(item, empty); 
+                try {
+                	setText(this.getTableRow().getIndex() + "");
+                } catch(NullPointerException e) {}
             }
         };
         });
@@ -90,7 +94,6 @@ public class GUI extends Main {
         nameCol.setOnEditCommit(
                 (CellEditEvent<String, String> t) -> {
                     trainingNames.set(t.getTablePosition().getRow(), t.getNewValue());
-                    changedConf = true;
                 }
         );
         
@@ -101,16 +104,15 @@ public class GUI extends Main {
         trainingNamesTable.getColumns().addAll(buttonNrCol, nameCol);
         
         //create button to save changes
-        final Button applyButton = new Button("Zapisz i wyjdÅº");
+        final Button applyButton = new Button("Zapisz i wyjdŸ");
         applyButton.setOnAction(e -> {
-        	if(changedConf) {
-        		conf.clear();
-        		for(int i = 0; i < 20; i++) {
-            		if(!nameCol.getCellData(i).isEmpty()) {
-            			conf.addName(nameCol.getCellData(i));
-            		}
+        	conf.clear();
+        	for(int i = 0; i < 20; i++) {
+            	if(!nameCol.getCellData(i).isEmpty()) {
+            		conf.addName(nameCol.getCellData(i));
             	}
         	}
+        	Parser.saveConfiguration(conf);
         	configure.close();
         	stage.close();
         });
@@ -129,10 +131,11 @@ public class GUI extends Main {
         //add scene to stage and show it
         configure.setScene(configureScene);
         configure.show();
+
 	}
 	
 	//UI for generating reports
-	public static void reportStage() {
+	public static void reportStage(Configuration conf) {
 		
 		//create new window
 		Stage report = new Stage();
@@ -172,14 +175,17 @@ public class GUI extends Main {
         Label name = new Label("Nazwa treningu");
         reportGrid.add(name, 0, 2);
         
-        //field for entering training name
-        TextField textField = new TextField ();
-        reportGrid.add(textField, 1, 2);
+        //field for choosing training name
+        ChoiceBox<String> cb = new ChoiceBox<String>(
+        		FXCollections.observableArrayList(
+        				conf.namesArray())
+        );
+        reportGrid.add(cb, 1, 2);
         
         //button generating and saving to filesystem pdf report
         Button generate = new Button("Generuj raport");
         generate.setOnAction(e -> {
-        	PDF.generateReport(textField.getText(), dateFrom.getValue(), dateTo.getValue());
+        	PDF.generateReport(cb.getValue(), dateFrom.getValue(), dateTo.getValue());
         });
         
         //just for centering button
@@ -233,4 +239,51 @@ public class GUI extends Main {
         savedStage.setScene(savedScene);
         savedStage.show();
 	}
+	
+	//window showing when there is no configuration.json file found on disk (usually first use)
+	public static void confFileNotFoundException() {
+			
+		//create new window
+		Stage stage = new Stage();
+		stage.initModality(Modality.APPLICATION_MODAL);
+		stage.setTitle("B³¹d!");
+		stage.setWidth(350);
+		stage.setHeight(250);
+		       
+		//grid containing all elements
+		GridPane grid = new GridPane();
+		grid.setAlignment(Pos.CENTER);
+		grid.setHgap(10);
+		grid.setVgap(10);
+		grid.setPadding(new Insets(20, 20, 20, 20));
+		
+		Scene scene = new Scene(grid); 
+		
+		//text saying what is the problem
+	    Text text = new Text("Nie znaleziono pliku \"configuration.json\". Je¿eli jest to pierwsze u¿ycie "
+	    		+ "programu, zignoruj tê informacjê. W przeciwnym wypadku - sprawdŸ, czy "
+	    		+ "nazwy treningów na pewno s¹ prawid³owe i popraw je w razie potrzeby!");
+	    text.setFont(new Font("Arial", 15));
+	    text.wrappingWidthProperty().set(300);
+	    text.setTextAlignment(TextAlignment.JUSTIFY);
+	    grid.add(text, 0, 0);
+	       
+	    //button closing window
+	    Button close = new Button("Ok!");
+	    close.setOnAction(e -> {
+	      	stage.close();
+	    });
+	        
+	    //just for centering button
+	    HBox hb = new HBox(10);
+	    hb.setAlignment(Pos.CENTER);
+	    hb.getChildren().add(close);
+	    grid.add(hb, 0, 1);
+	        
+	    //add scene to stage and show
+	    stage.setScene(scene);
+	    stage.show();
+	    
+	}
+		
 }

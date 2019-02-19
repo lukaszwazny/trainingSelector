@@ -1,4 +1,4 @@
-package app;
+package trainingSelector;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -8,9 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Training {
 	
-	String name;		//name of training
-	Date date;			//date of training
-	int entrances;		//number of entrances
+	private String name;		//name of training
+	private Date date;			//date of training
+	private int entrances;		//number of entrances
 
 	//creating training with given name, default date and 0 entrances
 	public Training(String name) {
@@ -49,6 +49,10 @@ public class Training {
 	
 	public void addEntrance() {
 		this.entrances++;
+	}
+	
+	public void setEntrances(int entrances) {
+		this.entrances = entrances;
 	}
 	
 	public void deleteEntrance() {

@@ -1,17 +1,19 @@
-package app;
+package trainingSelector;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Configuration {
-	List<String> names;	//list containing names of trainings
+	private List<String> names;	//list containing names of trainings
 	
 	//default
 	public Configuration() {
-		this.names = Arrays.asList(
+		this.names = new LinkedList<String>(
+			Arrays.asList(
 				"Boks",
 				"Muay Thai",
 				"MMA pocz.",
@@ -22,7 +24,9 @@ public class Configuration {
 				"BJJ 8-12",
 				"BJJ 4-7",
 				"MDS",
-				"Krav Maga");
+				"Krav Maga"
+			)
+		);
 	}
 	
 	//for reading from json

@@ -1,12 +1,11 @@
-package app;
+package trainingSelector;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
-import com.fazecast.jSerialComm.SerialPort;
-import com.fazecast.jSerialComm.SerialPortDataListener;
-import com.fazecast.jSerialComm.SerialPortEvent;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -30,35 +29,62 @@ import javafx.stage.Stage;
 public class Main extends Application {
 	
 	//configuration object
-	static Configuration conf;
+	protected static Configuration conf;
 	
 	//list of trainings
 	protected static ObservableList<Training> trainings = FXCollections.observableArrayList();
 	
-	//for controlling listening to input stream
-	public static boolean listen;
-	
-	//for saving information about fact if configuration was changed
-	static boolean changedConf;
+	//for checking if configuration file was found
+	private static boolean confFileNotFound;
 	
 	public static void main(String[] args) {
 		
 		//read configuration
-		conf = Parser.readConfiguration();
+		confFileNotFound = false;
+		try {
+			conf = Parser.readConfiguration();
+		} catch (IOException e){
+			confFileNotFound = true;
+		}
 		
 		//if configuration doesn't exist - make it default
-		changedConf = false;
 		if(conf == null) {
 			conf = new Configuration();
-			changedConf = true;
+			Parser.saveConfiguration(conf);
 		}
 		
 		//fill trainings list with trainings which names are in configuration file
 		for(int i = 0; i < conf.length(); i++) {
 			trainings.add(new Training(conf.getName(i)));
 		}
-
-        //creates an objcet representing the PC <-> Arduino communication interface
+		
+		//check if there are saved trainings with the same date as current - if so
+		//set number of entrances the same as in saved trainings
+		List<Training> savedTrainings = Parser.readTrainings();	
+		trainings.forEach(currentTraining -> {
+			
+			boolean rightDate = true;
+			for(int i = savedTrainings.size() - 1; i >= 0 && rightDate; i--) {
+				
+				//check if the date of current training equals to date of
+				//training in database
+				rightDate = savedTrainings.get(i).getDate()
+						.equals(currentTraining.getDate());
+				
+				//check if the name of current training matches the name of training 
+				//saved in database
+				boolean rightName = Objects.equals(currentTraining.getName(),
+						savedTrainings.get(i).getName());
+				
+				//if all previous true set appropriate number of entrances
+				if(rightName && rightDate)
+					currentTraining
+					.setEntrances(savedTrainings.get(i).getEntrances());
+				
+			}
+		});
+		
+		//creates an object representing the PC <-> Arduino communication interface
         ArduinoCommunicator comm = new ArduinoCommunicator();
 
         //find the arduino-port and open it
@@ -74,14 +100,9 @@ public class Main extends Application {
 
         //listen to arduino
         comm.launchArduinoListener();
-
+		
 		//launch GUI
 		Application.launch(args);
-		
-		//if changed configuration - save it
-		if(changedConf) {
-			Parser.saveConfiguration(conf);
-		}
 		
 	}
 	
@@ -93,6 +114,7 @@ public class Main extends Application {
 	//main stage of application
 	@SuppressWarnings("unchecked")
 	public void start(Stage stage) {
+		
         stage.setTitle("Training Counter");
         stage.setWidth(400);
         stage.setHeight(550);
@@ -125,14 +147,14 @@ public class Main extends Application {
                 new PropertyValueFactory<Training, String>("name"));
         
         //create second column and fill with number of entrances of each training
-        TableColumn<Training, Integer> entrancesAmountCol = new TableColumn<Training, Integer>("IloÅ›Ä‡ wejÅ›Ä‡");
+        TableColumn<Training, Integer> entrancesAmountCol = new TableColumn<Training, Integer>("Iloœæ wejœæ");
         entrancesAmountCol.setCellValueFactory(
                 new PropertyValueFactory<Training, Integer>("entrances"));
         
         //create third column and fill with buttons capable of deleting 
         //one entrance of appropriate training
         TableColumn<Training, Button> deleteEntranceCol = new TableColumn<Training, Button>("");
-        deleteEntranceCol.setCellFactory(ActionButtonTableCell.<Training>forTableColumn("UsuÅ„",
+        deleteEntranceCol.setCellFactory(ActionButtonTableCell.<Training>forTableColumn("Usuñ", 
         		(Training p) -> {
         			p.deleteEntrance();
         			table.refresh();
@@ -157,7 +179,7 @@ public class Main extends Application {
         confLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                GUI.configurationStage(stage);
+                GUI.configurationStage(stage, conf);
             }
         });
         menuConf.setGraphic(confLabel);
@@ -168,7 +190,7 @@ public class Main extends Application {
         reportLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-            	GUI.reportStage();
+            	GUI.reportStage(conf);
             }
         });
         menuReport.setGraphic(reportLabel);
@@ -193,7 +215,7 @@ public class Main extends Application {
         
         //fourth menu button for saving trainings list to json and closing application
         Menu menuClose = new Menu();
-        Label closeLabel = new Label("Zapisz i wyjdÅº");
+        Label closeLabel = new Label("Zapisz i wyjdŸ");
         closeLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -218,7 +240,10 @@ public class Main extends Application {
         //add scene to stage and show
         stage.setScene(scene);
         stage.show();
-
+        
+        //message saying that configuration file was not found
+        if(confFileNotFound)
+			GUI.confFileNotFoundException();
     }
 
 }

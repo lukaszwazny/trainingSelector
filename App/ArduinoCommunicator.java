@@ -1,4 +1,5 @@
-package app;
+package trainingSelector;
+
 import com.fazecast.jSerialComm.*;
 
 import java.io.PrintWriter;
@@ -6,7 +7,7 @@ import java.util.Scanner;
 
 public class ArduinoCommunicator {
 
-    private static final short baudRate = 9600;
+	private static final short baudRate = 9600;
     protected SerialPort port;
     private boolean portFound;
 
@@ -160,5 +161,5 @@ public class ArduinoCommunicator {
     public void setPort(SerialPort port) {
         this.port = port;
     }
-
+	
 }
