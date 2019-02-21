@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Objects;
 
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,7 +16,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -59,29 +56,32 @@ public class Main extends Application {
 		
 		//check if there are saved trainings with the same date as current - if so
 		//set number of entrances the same as in saved trainings
+		
 		List<Training> savedTrainings = Parser.readTrainings();	
-		buffer.getTrainings().forEach(currentTraining -> {
-			
-			boolean rightDate = true;
-			for(int i = savedTrainings.size() - 1; i >= 0 && rightDate; i--) {
+		if(savedTrainings != null) {
+			buffer.getTrainings().forEach(currentTraining -> {
 				
-				//check if the date of current training equals to date of
-				//training in database
-				rightDate = savedTrainings.get(i).getDate()
-						.equals(currentTraining.getDate());
-				
-				//check if the name of current training matches the name of training 
-				//saved in database
-				boolean rightName = Objects.equals(currentTraining.getName(),
-						savedTrainings.get(i).getName());
-				
-				//if all previous true set appropriate number of entrances
-				if(rightName && rightDate)
-					currentTraining
-					.setEntrances(savedTrainings.get(i).getEntrances());
-				
-			}
-		});
+				boolean rightDate = true;
+				for(int i = savedTrainings.size() - 1; i >= 0 && rightDate; i--) {
+					
+					//check if the date of current training equals to date of
+					//training in database
+					rightDate = savedTrainings.get(i).getDate()
+							.equals(currentTraining.getDate());
+					
+					//check if the name of current training matches the name of training 
+					//saved in database
+					boolean rightName = Objects.equals(currentTraining.getName(),
+							savedTrainings.get(i).getName());
+					
+					//if all previous true set appropriate number of entrances
+					if(rightName && rightDate)
+						currentTraining
+						.setEntrances(savedTrainings.get(i).getEntrances());
+					
+				}
+			});
+		}
 		
 		//creates an object representing the PC <-> Arduino communication interface
         ArduinoCommunicator comm = new ArduinoCommunicator(buffer);
@@ -243,4 +243,3 @@ public class Main extends Application {
     }
 
 }
-
