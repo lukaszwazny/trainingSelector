@@ -1,4 +1,4 @@
-package trainingSelector;
+package app;
 
 import com.fazecast.jSerialComm.*;
 
@@ -10,12 +10,22 @@ public class ArduinoCommunicator {
 	private static final short baudRate = 9600;
     protected SerialPort port;
     private boolean portFound;
+    private ArduinoDataReceiver buffer;
 
 
     ArduinoCommunicator(){
 
         this.portFound = false;
         this.port = null;
+        this.buffer = null;
+
+    }
+
+    ArduinoCommunicator(ArduinoDataReceiver buffer){
+
+        this.portFound = false;
+        this.port = null;
+        this.buffer = buffer;
 
     }
 
@@ -128,12 +138,8 @@ public class ArduinoCommunicator {
                     buff = buff.trim();//optional (buff may contain white spaces)
                     int number = Integer.parseInt(buff);
 
-                    /*if(number < trainings.size()) {
-                        //adding entrance to training specified by index from input stream
-                        trainings.get(number).addEntrance();
-                        table.refresh();
-                    }*/
-                    System.out.println(number);
+                    buffer.parseData(number);
+                   // System.out.println(number);
                 }
             }
 

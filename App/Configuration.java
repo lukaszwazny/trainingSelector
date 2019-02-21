@@ -1,4 +1,4 @@
-package trainingSelector;
+package app;
 
 import java.util.Arrays;
 import java.util.LinkedList;

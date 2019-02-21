@@ -1,4 +1,4 @@
-package trainingSelector;
+package app;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

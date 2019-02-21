@@ -1,4 +1,4 @@
-package trainingSelector;
+package app;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -73,7 +73,7 @@ public class PDF {
 		Font helveticaNormalBold = new Font(helveticaBold, 20);
 		
 		//first paragraph
-		Paragraph par1 = new Paragraph("Iloœæ wejœæ na treningi o nazwie", helveticaNormal); 
+		Paragraph par1 = new Paragraph("Iloï¿½ï¿½ wejï¿½ï¿½ na treningi o nazwie", helveticaNormal); 
 		par1.setAlignment(Element.ALIGN_CENTER);
 		
 		//second paragraph
@@ -161,7 +161,7 @@ public class PDF {
 		});
 		
 		//add cells with sum of entrances
-		Paragraph all = new Paragraph("£¹cznie", new Font(helveticaBold, 14));
+		Paragraph all = new Paragraph("ï¿½ï¿½cznie", new Font(helveticaBold, 14));
 		PdfPCell allLabel = new PdfPCell(all);
 		allLabel.setHorizontalAlignment(Element.ALIGN_CENTER);
 		table.addCell(allLabel);
@@ -173,7 +173,7 @@ public class PDF {
 
 	private static void addTableHeader(PdfPTable table) {
 		//adding headers with some formatting
-		Stream.of("Data", "Iloœæ wejœæ")
+		Stream.of("Data", "Iloï¿½ï¿½ wejï¿½ï¿½")
 	      .forEach(columnTitle -> {
 	    	  Paragraph p = new Paragraph(columnTitle, new Font(helvetica, 15));
 	    	  PdfPCell header = new PdfPCell(p);

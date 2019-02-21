@@ -1,4 +1,4 @@
-package trainingSelector;
+package app;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -29,13 +29,12 @@ import javafx.stage.Stage;
 public class Main extends Application {
 	
 	//configuration object
-	protected static Configuration conf;
-	
-	//list of trainings
-	protected static ObservableList<Training> trainings = FXCollections.observableArrayList();
+	private static Configuration conf;
 	
 	//for checking if configuration file was found
 	private static boolean confFileNotFound;
+
+	private static AppReceiver buffer = new AppReceiver();
 	
 	public static void main(String[] args) {
 		
@@ -55,13 +54,13 @@ public class Main extends Application {
 		
 		//fill trainings list with trainings which names are in configuration file
 		for(int i = 0; i < conf.length(); i++) {
-			trainings.add(new Training(conf.getName(i)));
+			buffer.addNewTrainingToList(new Training(conf.getName(i)));
 		}
 		
 		//check if there are saved trainings with the same date as current - if so
 		//set number of entrances the same as in saved trainings
 		List<Training> savedTrainings = Parser.readTrainings();	
-		trainings.forEach(currentTraining -> {
+		buffer.getTrainings().forEach(currentTraining -> {
 			
 			boolean rightDate = true;
 			for(int i = savedTrainings.size() - 1; i >= 0 && rightDate; i--) {
@@ -85,7 +84,7 @@ public class Main extends Application {
 		});
 		
 		//creates an object representing the PC <-> Arduino communication interface
-        ArduinoCommunicator comm = new ArduinoCommunicator();
+        ArduinoCommunicator comm = new ArduinoCommunicator(buffer);
 
         //find the arduino-port and open it
         comm.initializeArduino();
@@ -105,12 +104,9 @@ public class Main extends Application {
 		Application.launch(args);
 		
 	}
-	
-	//GUI
-	
-	//create table which will be filled with trainings data
-	public static TableView<Training> table = new TableView<Training>();
-	
+
+    //GUI
+
 	//main stage of application
 	@SuppressWarnings("unchecked")
 	public void start(Stage stage) {
@@ -139,7 +135,7 @@ public class Main extends Application {
         mainGrid.add(hbLabel, 0, 1);
         
         //make table editable
-        table.setEditable(true);
+        buffer.getTable().setEditable(true);
         
         //create first column and fill with training names
         TableColumn<Training, String> trainingNameCol = new TableColumn<Training, String>("Trening");
@@ -147,28 +143,28 @@ public class Main extends Application {
                 new PropertyValueFactory<Training, String>("name"));
         
         //create second column and fill with number of entrances of each training
-        TableColumn<Training, Integer> entrancesAmountCol = new TableColumn<Training, Integer>("Iloœæ wejœæ");
+        TableColumn<Training, Integer> entrancesAmountCol = new TableColumn<Training, Integer>("Iloï¿½ï¿½ wejï¿½ï¿½");
         entrancesAmountCol.setCellValueFactory(
                 new PropertyValueFactory<Training, Integer>("entrances"));
         
         //create third column and fill with buttons capable of deleting 
         //one entrance of appropriate training
         TableColumn<Training, Button> deleteEntranceCol = new TableColumn<Training, Button>("");
-        deleteEntranceCol.setCellFactory(ActionButtonTableCell.<Training>forTableColumn("Usuñ", 
+        deleteEntranceCol.setCellFactory(ActionButtonTableCell.<Training>forTableColumn("Usuï¿½", 
         		(Training p) -> {
         			p.deleteEntrance();
-        			table.refresh();
+        			buffer.getTable().refresh();
         			return p;
         }));
         
         //set list from which comes all data to fill in table
-        table.setItems(trainings);
+        buffer.getTable().setItems(buffer.getTrainings());
         
         //add columns to table
-        table.getColumns().addAll(trainingNameCol, entrancesAmountCol, deleteEntranceCol);
+        buffer.getTable().getColumns().addAll(trainingNameCol, entrancesAmountCol, deleteEntranceCol);
         
         //add table to main grid
-        mainGrid.add(table, 0, 2);
+        mainGrid.add(buffer.getTable(), 0, 2);
         
         //create menu
         MenuBar menuBar = new MenuBar();
@@ -203,10 +199,10 @@ public class Main extends Application {
             public void handle(MouseEvent event) {
             	List<Training> trainings_ = Parser.readTrainings();
         		if(trainings_ != null) {
-        			trainings_.addAll(trainings);
+        			trainings_.addAll(buffer.getTrainings());
         			Parser.saveTrainings(trainings_);
         		} else {
-        			Parser.saveTrainings(trainings);
+        			Parser.saveTrainings(buffer.getTrainings());
         		}
         		GUI.saved();
             }
@@ -215,16 +211,16 @@ public class Main extends Application {
         
         //fourth menu button for saving trainings list to json and closing application
         Menu menuClose = new Menu();
-        Label closeLabel = new Label("Zapisz i wyjdŸ");
+        Label closeLabel = new Label("Zapisz i wyjdï¿½");
         closeLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
             	List<Training> trainings_ = Parser.readTrainings();
         		if(trainings_ != null) {
-        			trainings_.addAll(trainings);
+        			trainings_.addAll(buffer.getTrainings());
         			Parser.saveTrainings(trainings_);
         		} else {
-        			Parser.saveTrainings(trainings);
+        			Parser.saveTrainings(buffer.getTrainings());
         		}
                 stage.close();
             }
@@ -247,3 +243,4 @@ public class Main extends Application {
     }
 
 }
+

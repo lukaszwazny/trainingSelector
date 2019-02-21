@@ -1,4 +1,4 @@
-package trainingSelector;
+package app;
 
 import java.util.function.Function;
 import javafx.event.ActionEvent;

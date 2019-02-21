@@ -1,4 +1,4 @@
-package trainingSelector;
+package app;
 
 import java.time.ZoneId;
 import java.util.Date;
@@ -104,7 +104,7 @@ public class GUI {
         trainingNamesTable.getColumns().addAll(buttonNrCol, nameCol);
         
         //create button to save changes
-        final Button applyButton = new Button("Zapisz i wyjdŸ");
+        final Button applyButton = new Button("Zapisz i wyjdï¿½");
         applyButton.setOnAction(e -> {
         	conf.clear();
         	for(int i = 0; i < 20; i++) {
@@ -246,7 +246,7 @@ public class GUI {
 		//create new window
 		Stage stage = new Stage();
 		stage.initModality(Modality.APPLICATION_MODAL);
-		stage.setTitle("B³¹d!");
+		stage.setTitle("Bï¿½ï¿½d!");
 		stage.setWidth(350);
 		stage.setHeight(250);
 		       
@@ -260,9 +260,9 @@ public class GUI {
 		Scene scene = new Scene(grid); 
 		
 		//text saying what is the problem
-	    Text text = new Text("Nie znaleziono pliku \"configuration.json\". Je¿eli jest to pierwsze u¿ycie "
-	    		+ "programu, zignoruj tê informacjê. W przeciwnym wypadku - sprawdŸ, czy "
-	    		+ "nazwy treningów na pewno s¹ prawid³owe i popraw je w razie potrzeby!");
+	    Text text = new Text("Nie znaleziono pliku \"configuration.json\". Jeï¿½eli jest to pierwsze uï¿½ycie "
+	    		+ "programu, zignoruj tï¿½ informacjï¿½. W przeciwnym wypadku - sprawdï¿½, czy "
+	    		+ "nazwy treningï¿½w na pewno sï¿½ prawidï¿½owe i popraw je w razie potrzeby!");
 	    text.setFont(new Font("Arial", 15));
 	    text.wrappingWidthProperty().set(300);
 	    text.setTextAlignment(TextAlignment.JUSTIFY);
