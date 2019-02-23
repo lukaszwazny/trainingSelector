@@ -28,7 +28,7 @@ public class Parser {
 		} catch (JsonMappingException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			if(e instanceof FileNotFoundException);
+			if(e instanceof FileNotFoundException)
 				throw e;
 		}
 		return conf;
@@ -85,6 +85,7 @@ public class Parser {
 	//save trainings list to json but first check if wanted-to-save training exists in database
 	//if so - overwrite it
 	public static void saveTrainings(List<Training> trainings) {
+		
 		List<Training> trainings_ = Parser.readTrainings();
 		if(trainings_ == null) {
 			saveTrainingsBasic(trainings);
@@ -98,8 +99,8 @@ public class Parser {
 					
 					//check if the date of current training equals to date of
 					//training in database
-					rightDate = trainings_.get(i).getDate()
-							.equals(training.getDate());
+					rightDate = TimeIgnoringComparator.isSameDay(
+							trainings_.get(i).getDate(), training.getDate());
 					
 					//check if the name of current training matches the name of training 
 					//saved in database

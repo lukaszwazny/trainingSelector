@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -22,6 +23,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class Main extends Application {
 	
@@ -66,8 +68,8 @@ public class Main extends Application {
 					
 					//check if the date of current training equals to date of
 					//training in database
-					rightDate = savedTrainings.get(i).getDate()
-							.equals(currentTraining.getDate());
+					rightDate = TimeIgnoringComparator.isSameDay(
+							savedTrainings.get(i).getDate(), currentTraining.getDate());
 					
 					//check if the name of current training matches the name of training 
 					//saved in database
@@ -197,13 +199,7 @@ public class Main extends Application {
         saveLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-            	List<Training> trainings_ = Parser.readTrainings();
-        		if(trainings_ != null) {
-        			trainings_.addAll(buffer.getTrainings());
-        			Parser.saveTrainings(trainings_);
-        		} else {
-        			Parser.saveTrainings(buffer.getTrainings());
-        		}
+            	Parser.saveTrainings(buffer.getTrainings());
         		GUI.saved();
             }
         });
@@ -215,14 +211,10 @@ public class Main extends Application {
         closeLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-            	List<Training> trainings_ = Parser.readTrainings();
-        		if(trainings_ != null) {
-        			trainings_.addAll(buffer.getTrainings());
-        			Parser.saveTrainings(trainings_);
-        		} else {
-        			Parser.saveTrainings(buffer.getTrainings());
-        		}
+            	Parser.saveTrainings(buffer.getTrainings());
                 stage.close();
+                Platform.exit();
+                System.exit(0);
             }
         });
         menuClose.setGraphic(closeLabel);
@@ -236,6 +228,15 @@ public class Main extends Application {
         //add scene to stage and show
         stage.setScene(scene);
         stage.show();
+        
+        //terminate app when window closed
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent t) {
+                Platform.exit();
+                System.exit(0);
+            }
+        });
         
         //message saying that configuration file was not found
         if(confFileNotFound)
