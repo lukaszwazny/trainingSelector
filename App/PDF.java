@@ -73,7 +73,7 @@ public class PDF {
 		Font helveticaNormalBold = new Font(helveticaBold, 20);
 		
 		//first paragraph
-		Paragraph par1 = new Paragraph("Ilo�� wej�� na treningi o nazwie", helveticaNormal); 
+		Paragraph par1 = new Paragraph("Ilość wejść na treningi o nazwie", helveticaNormal); 
 		par1.setAlignment(Element.ALIGN_CENTER);
 		
 		//second paragraph
@@ -161,7 +161,7 @@ public class PDF {
 		});
 		
 		//add cells with sum of entrances
-		Paragraph all = new Paragraph("��cznie", new Font(helveticaBold, 14));
+		Paragraph all = new Paragraph("Łącznie", new Font(helveticaBold, 14));
 		PdfPCell allLabel = new PdfPCell(all);
 		allLabel.setHorizontalAlignment(Element.ALIGN_CENTER);
 		table.addCell(allLabel);
@@ -173,7 +173,7 @@ public class PDF {
 
 	private static void addTableHeader(PdfPTable table) {
 		//adding headers with some formatting
-		Stream.of("Data", "Ilo�� wej��")
+		Stream.of("Data", "Ilość wejść")
 	      .forEach(columnTitle -> {
 	    	  Paragraph p = new Paragraph(columnTitle, new Font(helvetica, 15));
 	    	  PdfPCell header = new PdfPCell(p);

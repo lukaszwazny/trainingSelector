@@ -3,6 +3,9 @@ package app;
 import java.time.ZoneId;
 import java.util.Date;
 
+import javax.swing.JOptionPane;
+
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -104,7 +107,7 @@ public class GUI {
         trainingNamesTable.getColumns().addAll(buttonNrCol, nameCol);
         
         //create button to save changes
-        final Button applyButton = new Button("Zapisz i wyjd�");
+        final Button applyButton = new Button("Zapisz i wyjdz");
         applyButton.setOnAction(e -> {
         	conf.clear();
         	for(int i = 0; i < 20; i++) {
@@ -240,13 +243,69 @@ public class GUI {
         savedStage.show();
 	}
 	
+	//window asking if user wants to save work
+	public static void askToSave(AppReceiver buffer) {
+			
+		//create new window
+		Stage stage = new Stage();
+		stage.initModality(Modality.APPLICATION_MODAL);
+		stage.setTitle("Zapisać?");
+		stage.setWidth(250);
+		stage.setHeight(150);
+		       
+		//grid containing all elements
+		GridPane grid = new GridPane();
+		grid.setAlignment(Pos.CENTER);
+		grid.setHgap(10);
+		grid.setVgap(10);
+		grid.setPadding(new Insets(20, 20, 20, 20));
+		
+		Scene scene = new Scene(grid); 
+		
+		//text asking the question
+	    Text text = new Text("Czy chcesz zapisać obecny stan?");
+	    text.setFont(new Font("Arial", 15));
+	    text.wrappingWidthProperty().set(300);
+	    text.setTextAlignment(TextAlignment.CENTER);
+	    grid.add(text, 0, 0);
+	       
+	    //answer yes
+	    Button yes = new Button("Tak!");
+	    yes.setOnAction(e -> {
+	    	Parser.saveTrainings(buffer.getTrainings());
+    		GUI.saved();
+    		stage.close();
+    		Platform.exit();
+            System.exit(0);
+	    });
+	    
+	    //answer no
+	    Button no = new Button("Nie!");
+	    no.setOnAction(e -> {
+	      	stage.close();
+	      	Platform.exit();
+            System.exit(0);
+	    });
+	        
+	    //just for centering buttons
+	    HBox hb = new HBox(10);
+	    hb.setAlignment(Pos.CENTER);
+	    hb.getChildren().addAll(yes, no);
+	    grid.add(hb, 0, 1);
+	        
+	    //add scene to stage and show
+	    stage.setScene(scene);
+	    stage.show();
+	    
+	}
+	
 	//window showing when there is no configuration.json file found on disk (usually first use)
 	public static void confFileNotFoundException() {
 			
 		//create new window
 		Stage stage = new Stage();
 		stage.initModality(Modality.APPLICATION_MODAL);
-		stage.setTitle("B��d!");
+		stage.setTitle("Błąd!");
 		stage.setWidth(350);
 		stage.setHeight(250);
 		       
@@ -260,9 +319,9 @@ public class GUI {
 		Scene scene = new Scene(grid); 
 		
 		//text saying what is the problem
-	    Text text = new Text("Nie znaleziono pliku \"configuration.json\". Je�eli jest to pierwsze u�ycie "
-	    		+ "programu, zignoruj t� informacj�. W przeciwnym wypadku - sprawd�, czy "
-	    		+ "nazwy trening�w na pewno s� prawid�owe i popraw je w razie potrzeby!");
+	    Text text = new Text("Nie znaleziono pliku \"configuration.json\". Je�eli jest to pierwsze użycie "
+	    		+ "programu, zignoruj tę informację. W przeciwnym wypadku - sprawdz, czy "
+	    		+ "nazwy treningów na pewno są prawidłowe i popraw je w razie potrzeby!");
 	    text.setFont(new Font("Arial", 15));
 	    text.wrappingWidthProperty().set(300);
 	    text.setTextAlignment(TextAlignment.JUSTIFY);
@@ -285,5 +344,13 @@ public class GUI {
 	    stage.show();
 	    
 	}
-		
+	
+	//window showing when there is no configuration.json file found on disk (usually first use)
+	public static void arduinoNotFound() {
+		JOptionPane.showMessageDialog(null, "Nie znaleziono urządzenia! Sprawdz, "
+				+ "czy podłączenie jest w porządku i otwórz porgram jeszcze raz.");
+		Platform.exit();
+        System.exit(0);
+	}
+	
 }

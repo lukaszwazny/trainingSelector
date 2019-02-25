@@ -96,6 +96,7 @@ public class Main extends Application {
             System.out.println("The Arduino board has been initialized and waits for commands.");
         else {
             System.out.println("ERROR. No Arduino board has been initialized.");
+            GUI.arduinoNotFound();
             return;
         }
 
@@ -145,14 +146,14 @@ public class Main extends Application {
                 new PropertyValueFactory<Training, String>("name"));
         
         //create second column and fill with number of entrances of each training
-        TableColumn<Training, Integer> entrancesAmountCol = new TableColumn<Training, Integer>("Ilo�� wej��");
+        TableColumn<Training, Integer> entrancesAmountCol = new TableColumn<Training, Integer>("Ilość wejść");
         entrancesAmountCol.setCellValueFactory(
                 new PropertyValueFactory<Training, Integer>("entrances"));
         
         //create third column and fill with buttons capable of deleting 
         //one entrance of appropriate training
         TableColumn<Training, Button> deleteEntranceCol = new TableColumn<Training, Button>("");
-        deleteEntranceCol.setCellFactory(ActionButtonTableCell.<Training>forTableColumn("Usu�", 
+        deleteEntranceCol.setCellFactory(ActionButtonTableCell.<Training>forTableColumn("Usuń", 
         		(Training p) -> {
         			p.deleteEntrance();
         			buffer.getTable().refresh();
@@ -207,7 +208,7 @@ public class Main extends Application {
         
         //fourth menu button for saving trainings list to json and closing application
         Menu menuClose = new Menu();
-        Label closeLabel = new Label("Zapisz i wyjd�");
+        Label closeLabel = new Label("Zapisz i wyjdz");
         closeLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -229,12 +230,12 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
         
-        //terminate app when window closed
+        //ask to save files if window closing
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent t) {
-                Platform.exit();
-                System.exit(0);
+            	t.consume();
+                GUI.askToSave(buffer);
             }
         });
         
