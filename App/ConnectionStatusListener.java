@@ -18,6 +18,8 @@ public class ConnectionStatusListener implements PropertyChangeListener {
         if (evt.getPropertyName().equals("portFoundProperty")) {
             if((Boolean)evt.getNewValue()){
                 for(SerialPort port: tmpPorts){
+                   
+                    //WAZNE !!! nie wywolywac tej metody dla portu, na ktorym jest arduino. Koniecznie poprawic!!!
                     port.removeDataListener();
                     System.out.println("removed " + port.getSystemPortName());
                 }
