@@ -90,6 +90,12 @@ public class Main extends Application {
 
         //find the arduino-port and open it
         comm.initializeArduino();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("log arduino initialization");
 
         //check if the arduino board has been initialized succesfully
         if(comm.isArduinoInitialized())

@@ -4,8 +4,9 @@
 const byte rows = 4;
 const byte cols = 5;
 String expectedMessage = "PC";
-String answer = "nano";
+String sendMessage = "nano";
 const int pin = 13;
+bool pcConnectionOpen = false;
 
 
 char keys[rows][cols] = {
@@ -33,19 +34,25 @@ void setup() {
 
 void loop() {
 
-  
-  String text = Serial.readString();
-  if(text == expectedMessage){
-    Serial.println(answer);
-    digitalWrite(pin, HIGH);
+  if(!pcConnectionOpen){
+    Serial.println(sendMessage);
+    String text = Serial.readString();
+    if(text == expectedMessage){
+      pcConnectionOpen = true;
+      digitalWrite(pin, HIGH);
+    }
   }
 
-  char key = keypad.getKey();
-  if(key != NO_KEY){
-    Serial.print(int(key)-1);
-    digitalWrite(pin, LOW);
-    delay(150);
-    digitalWrite(pin, HIGH);
+  
+
+  if(pcConnectionOpen){
+    char key = keypad.getKey();
+    if(key != NO_KEY){
+      Serial.print(int(key)-1);
+      digitalWrite(pin, LOW);
+      delay(150);
+      digitalWrite(pin, HIGH);
+    }
   }
 
 }
